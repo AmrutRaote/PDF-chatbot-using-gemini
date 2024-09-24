@@ -1,15 +1,15 @@
-
 # 📄 Chat with PDF using Gemini
 
-This is a **Streamlit application** that allows users to upload PDF files and ask questions about their content. The app utilizes **Google's Gemini language model** for answering questions based on the content of the PDFs. The application extracts text from the PDF, processes it, and creates a vector store using the FAISS library for efficient search.
+This **Streamlit application** allows users to upload PDF files and ask questions about their content. It leverages **Google's Gemini language model** to provide accurate answers based on the content of the PDFs. The app extracts both text and images from PDFs, processes them, and creates a vector store using the FAISS library for efficient content search.
 
 ## 🛠 Features
 
-- Upload multiple PDF files.
-- Ask questions about the content of the uploaded PDFs.
-- Uses Google's **Gemini language model** for generating answers.
-- Automatically processes the PDFs into searchable text chunks.
-  
+- Upload multiple PDF files and process their content.
+- Extract both text and images from the PDF files.
+- Uses **Google's Gemini language model** to answer user questions.
+- Automatically splits PDF content into searchable text chunks and image summaries.
+- Efficiently searches through PDF content using **FAISS**.
+
 ## 📋 Table of Contents
 
 - [Libraries Used](#-libraries-used)
@@ -21,43 +21,48 @@ This is a **Streamlit application** that allows users to upload PDF files and as
 
 ## 📚 Libraries Used
 
-The following libraries are used in this project:
+The following libraries are utilized in the project:
 
-- **Streamlit**: For building the user interface and displaying results.
-- **PyPDF2**: To read and extract text from PDF files.
-- **LangChain**: For splitting text, embedding, creating vector stores, and handling question-answering chains.
-- **FAISS**: To create and manage the vector store for efficient text search.
-- **Google's Generative AI**: To generate embeddings and answers using the **Gemini language model**.
+- **Streamlit**: For creating the user interface and displaying results.
+- **PyPDF2**: To extract text from PDF files.
+- **LangChain**: For text splitting, embedding, creating vector stores, and handling question-answering chains.
+- **FAISS**: To build and manage the vector store for fast text and image search.
+- **Google's Generative AI (Gemini)**: For generating embeddings and answering questions using the **Gemini language model**.
+- **PyMuPDF (Fitz)**: To extract images from PDFs.
+- **Pillow**: For image processing and conversion.
 
 ---
 
 ## 🧰 Helper Functions
 
 ### `get_pdf_text(pdf_docs)`
-This function extracts the text from each page of the given PDF files and combines them into a single string.
+This function extracts text from all pages of the given PDF files. It reads each page of the PDF and appends the extracted text into a single string, which is later processed for search.
 
-### `get_text_chunks(text)`
-It splits the input text into smaller chunks using the `RecursiveCharacterTextSplitter` from LangChain. The chunks help in creating a vector store for better search performance.
+### `get_pdf_img(pdf_docs)`
+This function extracts images from the given PDF files. It uses **PyMuPDF** to locate images on each page of the PDF and saves them as PNG files. These images are then converted into Base64 strings and analyzed by the **Gemini language model**, which provides a summary for each image.
+
+### `get_text_chunks(text, img_txt)`
+Splits the input text and image summaries into smaller chunks using the `RecursiveCharacterTextSplitter` from LangChain. These chunks are used to create a vector store for efficient searching.
 
 ### `get_vector_store(text_chunks)`
-Creates a vector store from the text chunks using **FAISS** and **GoogleGenerativeAIEmbeddings**. The vector store is saved locally as `faiss_index`.
+Creates a vector store using **FAISS** and **GoogleGenerativeAIEmbeddings**. The vector store is saved locally for subsequent searches.
 
 ### `get_conversation_chain()`
-This function defines the conversation chain that uses **ChatGoogleGenerativeAI** with a custom prompt template to generate detailed answers based on the given context (PDF content) and user question.
+Defines the conversation chain using **ChatGoogleGenerativeAI** with a custom prompt template to generate detailed answers based on the given context (PDF content) and user questions.
 
 ### `user_input(user_question)`
-Takes a user’s question, loads the FAISS vector store, and performs a similarity search on the PDF content to retrieve relevant documents. The conversation chain is then used to generate an answer to the user’s question.
+Takes a user’s question, loads the FAISS vector store, and performs a similarity search on the PDF content to retrieve relevant documents. The conversation chain is then used to generate a detailed answer based on the retrieved documents.
 
 ---
 
 ## 🚀 Main Function
 
 ### `main()`
-The `main()` function sets up the **Streamlit app** and handles user interactions. Here's a breakdown:
+The `main()` function sets up the **Streamlit app** and manages user interactions. Here’s a breakdown:
 
-- **User Interface**: A text input field for users to ask questions about the PDF content.
-- **PDF Upload**: Allows users to upload multiple PDF files.
-- **Processing Button**: After uploading, the PDF content is processed by extracting text, splitting it into chunks, and creating a vector store.
+- **User Interface**: A text input field is provided for users to ask questions about the PDF content.
+- **PDF Upload**: Users can upload multiple PDF files for processing.
+- **Processing Button**: After the user uploads the PDF files, the content is processed by extracting text, images, and generating text chunks. The app then creates a vector store using the FAISS library to enable efficient searches.
 
 ---
 
