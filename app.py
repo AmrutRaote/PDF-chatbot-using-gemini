@@ -40,7 +40,6 @@ def get_pdf_text(pdf_docs):
     return text
 
 
-# convert an image file into a Base64-encoded string.
 def image2base64(image_path):
     with Image.open(image_path) as image:
         buffer=io.BytesIO()
@@ -48,7 +47,6 @@ def image2base64(image_path):
         img_str=base64.b64encode(buffer.getvalue())
         return img_str.decode("utf-8")
 
-#  2. Read the PDF files and extract the image
 def get_pdf_img(pdf_docs):
     image_list = []
     for file_path in pdf_docs:
@@ -58,12 +56,13 @@ def get_pdf_img(pdf_docs):
             page_content = pdf_file[i]
             image_list.extend(page_content.get_images(full=True))
 
+    print(image_list, len(image_list))
+
 
     if (len(image_list) == 0):
         img_text= []
         return img_text
 
-    # Extract the images from the PDF files and save them
     for i, img in enumerate(image_list, start=1):
         xref = img[0]
         base_image = pdf_file.extract_image(xref)
@@ -73,13 +72,14 @@ def get_pdf_img(pdf_docs):
         print(f"images/Image {i} extracted successfully")
 
 
-    # set of PNG images stored in a directory, converts them to Base64 strings, and sends them to a language model for analysis.
+    print("yes")
     cwd="./extracted_images"
+    print("yes")
     files=glob.glob(cwd+"/*.png")
     img_text= []
     for file in files:
         try:
-            image_str=image2base64(file) # convert the image to base64
+            image_str=image2base64(file)
             response=llm.invoke(
                 [
                     HumanMessage(
@@ -101,6 +101,7 @@ def get_pdf_img(pdf_docs):
         
         except Exception as e:
             print(e)
+            print("========================================")
             continue
 
         time.sleep(5)
@@ -108,7 +109,9 @@ def get_pdf_img(pdf_docs):
     return img_text
 
     
-# # 3. Split the text and image info into chunks
+
+
+# # 2. Split the text into chunks
 def get_text_chucnks(text, img_txt):
     text_splitter= RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -118,9 +121,12 @@ def get_text_chucnks(text, img_txt):
 
     chunks.extend(img_txt)
 
+    print(chunks)
+    print(len(chunks))
+
     return chunks
 
-# # 4. Create a vector store of the text chunks
+# # 3. Create a vector store of the text chunks
 def get_vector_store(text_chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model = 'models/embedding-001') # Load the embeddings model
 
@@ -130,7 +136,7 @@ def get_vector_store(text_chunks):
 
 
 
-# 5. Create a conversation chain to answer the questions from the PDF files
+# 4. Create a conversation chain to answer the questions from the PDF files
 def get_conversation_chain():
     prompt_template = PromptTemplate(
         template="""
@@ -168,14 +174,36 @@ def user_input(user_question):
     
     # Perform similarity search to retrieve relevant documents
     relevant_docs = vector_store.similarity_search(user_question)
-    print(relevant_docs)
+
+    img_list = []
+    print("---------------------------------------------------------")
+    print(len(relevant_docs))
+    print(relevant_docs[0])
+    print("---------------------------------------------------------")
     chain = get_conversation_chain()  # Load the conversation chain of number 4.
+
+        # Extract image file names from relevant_docs
+    for doc in relevant_docs:
+        content = doc.page_content
+        # Split the content by ":" to extract potential image file references
+        parts = content.split(":")
+        if len(parts) > 1 and parts[0].strip().startswith('image_'):
+            img_file = parts[0].strip()  # Extract image file name
+            img_list.append(img_file)
+
+    print("Extracted image files:", img_list)  # Print the extracted image files
+    
 
     response = chain(  # pass the relevant documents and user question to the chain
         {"input_documents": relevant_docs, "question": user_question},
+        # return_only_output=True
     )
      # print the response to the streamlit app
     st.write("Reply: ", response["output_text"])
+
+    if img_list:
+        for img in img_list:
+            st.image(f"E:/PDF_CHATBOT/PDF_Chatbot/extracted_images/{img}",  width=600)
 
 
 def main():
@@ -195,7 +223,8 @@ def main():
         if st.button("Submit & Process"):
             with st.spinner("Processing..."):
                 raw_text = get_pdf_text(pdf_docs)  # Read the PDF files and extract the text from 1.
-                raw_img = get_pdf_img(pdf_docs)  # Read the PDF files and extract the image.
+                raw_img = get_pdf_img(pdf_docs)  # Read the PDF files and extract the text from 1.
+                # print(raw_img)
                 text_chunks = get_text_chucnks(raw_text, raw_img)  # Split the text into chunks from 2.
                 get_vector_store(text_chunks)  # Create a vector store of the text chunks from 3.
                 st.success("Done")
