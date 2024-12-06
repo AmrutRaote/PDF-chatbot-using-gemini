@@ -56,7 +56,7 @@ def get_pdf_img(pdf_docs):
             page_content = pdf_file[i]
             image_list.extend(page_content.get_images(full=True))
 
-    print(image_list, len(image_list))
+    # print(image_list, len(image_list))
 
 
     if (len(image_list) == 0):
@@ -69,12 +69,12 @@ def get_pdf_img(pdf_docs):
         image_bytes = base_image["image"]
         image = Image.open(io.BytesIO(image_bytes))
         image.save(f"./extracted_images/image_{i}.png")
-        print(f"images/Image {i} extracted successfully")
+        # print(f"images/Image {i} extracted successfully")
 
 
-    print("yes")
+    # print("yes")
     cwd="./extracted_images"
-    print("yes")
+    # print("yes")
     files=glob.glob(cwd+"/*.png")
     img_text= []
     for file in files:
@@ -84,7 +84,7 @@ def get_pdf_img(pdf_docs):
                 [
                     HumanMessage(
                         content=[
-                            {"type":"text","text":"please give a summary of the image provided in single sentence and extract text if present, be descriptive and smart"},
+                            {"type":"text","text":"please give a summary of the image and extract text if present, be descriptive and smart"},
                             {"type":"image_url","image_url":
                             {
                                 "url":f"data:image/jpg;base64,{image_str}"
@@ -100,8 +100,8 @@ def get_pdf_img(pdf_docs):
 
         
         except Exception as e:
-            print(e)
-            print("========================================")
+            # print(e)
+            # print("========================================")
             continue
 
         time.sleep(5)
@@ -121,8 +121,8 @@ def get_text_chucnks(text, img_txt):
 
     chunks.extend(img_txt)
 
-    print(chunks)
-    print(len(chunks))
+    # print(chunks)
+    # print(len(chunks))
 
     return chunks
 
@@ -176,10 +176,10 @@ def user_input(user_question):
     relevant_docs = vector_store.similarity_search(user_question)
 
     img_list = []
-    print("---------------------------------------------------------")
-    print(len(relevant_docs))
-    print(relevant_docs[0])
-    print("---------------------------------------------------------")
+    # print("---------------------------------------------------------")
+    # print(len(relevant_docs))
+    # print(relevant_docs[0])
+    # print("---------------------------------------------------------")
     chain = get_conversation_chain()  # Load the conversation chain of number 4.
 
         # Extract image file names from relevant_docs
@@ -191,7 +191,7 @@ def user_input(user_question):
             img_file = parts[0].strip()  # Extract image file name
             img_list.append(img_file)
 
-    print("Extracted image files:", img_list)  # Print the extracted image files
+    # print("Extracted image files:", img_list)  # Print the extracted image files
     
 
     response = chain(  # pass the relevant documents and user question to the chain
