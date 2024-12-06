@@ -70,6 +70,12 @@ The `main()` function sets up the **Streamlit app** and manages user interaction
 ---
 
 ## ▶️ Output
+
+
+https://github.com/user-attachments/assets/c8963a77-18e0-44a6-a49a-001f8332d74c
+
+
+
 ![image](https://github.com/user-attachments/assets/8edd3424-4fb3-412c-bd8a-e177c93e0e6c)
 ---
 ![image](https://github.com/user-attachments/assets/42d2a3cf-d49a-4eb2-99a9-c1d292a2bfd6)
