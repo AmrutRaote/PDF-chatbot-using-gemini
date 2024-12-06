@@ -1,4 +1,11 @@
+import requests
 import streamlit as st
+
+headers={
+    "authorization": st.secrets["GOOGLE_API_KEY"],
+    "content-type": "application/json"
+}
+
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
